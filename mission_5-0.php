@@ -4,7 +4,7 @@
 	$user = 'ユーザー名';
 	$password = 'パスワード';
 	//PDOオブジェクトの生成(DB接続)
-	$pdo = new PDO($dsn, $user, $password, array(PDO::ATTR_ERRMODE => PDO::ERRMODE_WARNING));
+	$pdo = new PDO($dsn, $user, $password, array(PDO::ATTR_ERRMODE => PDO::ERRMODE_WARNING));　//データベースに接続
 	
     $sql = "CREATE TABLE IF NOT EXISTS mission_51"
 	." ("
@@ -14,25 +14,24 @@
 	. "date datetime,"
 	. "pass char(12)"
 	.");";
-	$stmt = $pdo->query($sql);
+	$stmt = $pdo->query($sql); 
 
 	//データ入力 送信ボタン動作
-	if(isset($_POST["Ssubmit"]) && empty($_POST["lognumber"]) && !empty($_POST["pass"])){
-	    $sql = $pdo -> prepare("INSERT INTO mission_51 (name, comment, date, pass) VALUES (:name, :comment, :date, :pass)");
-		$sql -> bindParam(':name', $name, PDO::PARAM_STR);
+	if(isset($_POST["Ssubmit"]) && empty($_POST["lognumber"]) && !empty($_POST["pass"])){ //見えてないところは空欄の時。
+	    $sql = $pdo -> prepare("INSERT INTO mission_51 (name, comment, date, pass) VALUES (:name, :comment, :date, :pass)");　//nameには:nameを用意　以下略
+		$sql -> bindParam(':name', $name, PDO::PARAM_STR);　//:nameに$nameを入れる
 		$sql -> bindParam(':comment', $comment, PDO::PARAM_STR);
 		$sql -> bindParam(':date', $date, PDO::PARAM_STR);
 		$sql -> bindParam(':pass', $pass, PDO::PARAM_STR);
 
-		$name=$_POST["name"];
+		$name=$_POST["name"];　//フォームからそれぞれ取得
    		$comment=$_POST["comment"];
-    	$date=date("Y/m/d H:i:s");
-    	$pass=$_POST["pass"];
+    		$date=date("Y/m/d H:i:s");
+    		$pass=$_POST["pass"];
 		$sql -> execute();
 	}	
-	//bindParamの引数名（:name など）はテーブルのカラム名に併せるとミスが少なくなります。最適なものを適宜決めよう。
-    
-    //削除機能
+
+	    //削除機能
 	if(isset($_POST["Dsubmit"])){
 		$Dpass=$_POST["Dpass"];
 		$Did =$_POST["delete"];//フォーム内の投稿番号とパスワードを定義
@@ -44,27 +43,26 @@
 		$stmt->execute();                             // ←SQLを実行する。
 		$results = $stmt->fetchAll(); 
 			foreach ($results as $row){
-				//$rowの中にはテーブルのカラム名が入る
-				$check = $row["pass"];
+				$check = $row["pass"]; //結果についてそれぞれの要素についての配列から要素を抜く。今回はpass
 		
 				if($check == $Dpass){//パスワード一致したら
 					$sql = 'delete from mission_51 where id=:id';
 					$stmt = $pdo->prepare($sql);
-					$stmt->bindParam(':id', $Did, PDO::PARAM_INT);
+					$stmt->bindParam(':id', $Did, PDO::PARAM_INT);　//投稿されたidについて削除
 					$stmt->execute();
 				}	
 			}	
 	}
 
 	//編集機能準備
-		if(isset($_POST["Esubmit"])){
-			$Eid=$_POST["edit"];
-			$Epass=$_POST["Epass"];
+		if(isset($_POST["Esubmit"])){ //編集ボタン動作時
+			$Eid=$_POST["edit"];　//編集したい投稿番号の取得
+			$Epass=$_POST["Epass"];　//編集したい投稿番号に対応するパスの取得
 			$sql = 'SELECT * FROM mission_51';
-			$stmt = $pdo->query($sql);
-			$results = $stmt->fetchAll();
+			$stmt = $pdo->query($sql);　//SELECT実行、PDOStatementオブジェクトとして返す
+			$results = $stmt->fetchAll(); //PDOStatementのすべての要素について配列として返す
 			foreach ($results as $row){
-				if($row["id"]==$Eid && $row["pass"]==$Epass){
+				if($row["id"]==$Eid && $row["pass"]==$Epass){ 
 					$Elognum=$row["id"];
 					$Ename=$row["name"];
 					$Ecomment=$row["comment"];
@@ -72,15 +70,14 @@
 				}
 			}
 		}
-
 	//編集機能
-		if(isset($_POST["Ssubmit"]) && isset($_POST["lognumber"]) && !empty($_POST["pass"])){
-			$Eid2=$_POST["lognumber"];
-			$name = $_POST["name"];
-			$comment = $_POST["comment"]; //変更したい名前、変更したいコメントは自分で決めること
-			$sql = 'UPDATE mission_51 SET name=:name,comment=:comment WHERE id=:id';
+		if(isset($_POST["Ssubmit"]) && isset($_POST["lognumber"]) && !empty($_POST["pass"])){　//もし見えてないところのフォームまで埋まっていたら。
+			$Eid2=$_POST["lognumber"]; //見えてないところの数字をそのまま
+			$name = $_POST["name"]; //フォームの名前
+			$comment = $_POST["comment"]; //フォームのコメント
+			$sql = 'UPDATE mission_51 SET name=:name,comment=:comment WHERE id=:id'; //nameに:nameを代入など以下略
 			$stmt = $pdo->prepare($sql);
-			$stmt->bindParam(':name', $name, PDO::PARAM_STR);
+			$stmt->bindParam(':name', $name, PDO::PARAM_STR); //:nameに$nameを代入以下略
 			$stmt->bindParam(':comment', $comment, PDO::PARAM_STR);
 			$stmt->bindParam(':id', $Eid2, PDO::PARAM_INT);
 			$stmt->execute();
@@ -129,9 +126,9 @@
 		//$rowの中にはテーブルのカラム名が入る
 		echo $row['id'].' ';
 		echo $row['name'].' ';
-        echo $row['comment'].' ';
-        echo $row['date'].'<br>';
-	echo "<hr>";
+        	echo $row['comment'].' ';
+       		echo $row['date'].'<br>';
+		echo "<hr>";
 	}
 
 
